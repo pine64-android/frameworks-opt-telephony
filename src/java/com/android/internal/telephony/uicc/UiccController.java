@@ -35,6 +35,16 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 
+import android.content.ContextWrapper;
+import android.provider.Settings;
+import com.android.internal.telephony.uicc.IccCardApplicationStatus.AppState;
+import android.os.SystemProperties;
+
+
+
+
+
+
 /**
  * This class is responsible for keeping all knowledge about
  * Universal Integrated Circuit Card (UICC), also know as SIM's,
@@ -283,8 +293,20 @@ public class UiccController extends Handler {
             Rlog.e(LOG_TAG,"onGetIccCardStatusDone: invalid index : " + index);
             return;
         }
-
         IccCardStatus status = (IccCardStatus)ar.result;
+
+        if(!SystemProperties.getBoolean("ro.sw.embeded.telephony",false)){
+             int enabled = 0;
+             try{
+                 enabled = Settings.Global.getInt(mContext.getContentResolver(),Settings.Global.AIRPLANE_MODE_ON);
+                 log("airplane mode enabled = " + enabled);
+             }catch(Exception e){
+             }
+         
+            if(status.mApplications[0].app_state == AppState.APPSTATE_DETECTED && (enabled == 1)){
+                 return;
+            }
+        }
 
         if (mUiccCards[index] == null) {
             //Create new card

@@ -60,6 +60,7 @@ public class SubscriptionInfoUpdater extends Handler {
     private static final int EVENT_SIM_LOCKED = 5;
 
     private static final String ICCID_STRING_FOR_NO_SIM = "";
+    private static final String ICCID_SIM_DEFAULT = "0";
     /**
      *  int[] sInsertSimState maintains all slots' SIM inserted status currently,
      *  it may contain 4 kinds of values:
@@ -288,11 +289,16 @@ public class SubscriptionInfoUpdater extends Handler {
             logd("onRecieve: IccRecords null");
             return;
         }
+        /*
         if (records.getIccId() == null) {
             logd("onRecieve: IccID null");
             return;
-        }
+        }*/
         mIccId[slotId] = records.getIccId();
+        if(mIccId[slotId] == null){
+          mIccId[slotId] = ICCID_SIM_DEFAULT;
+          logd("handleSimLoaded mIccId = " + mIccId[slotId]);
+        }
 
         if (isAllIccIdQueryDone()) {
             updateSubscriptionInfoByIccId();
@@ -392,7 +398,6 @@ public class SubscriptionInfoUpdater extends Handler {
      */
     synchronized private void updateSubscriptionInfoByIccId() {
         logd("updateSubscriptionInfoByIccId:+ Start");
-
         mSubscriptionManager.clearSubscriptionInfo();
 
         for (int i = 0; i < PROJECT_SIM_NUM; i++) {

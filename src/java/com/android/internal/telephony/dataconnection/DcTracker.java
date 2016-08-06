@@ -2263,7 +2263,6 @@ public final class DcTracker extends DcTrackerBase {
             // carrier_enabled : 1 means enabled apn, 0 disabled apn.
             // selection += " and carrier_enabled = 1";
             if (DBG) log("createAllApnList: selection=" + selection);
-
             Cursor cursor = mPhone.getContext().getContentResolver().query(
                     Telephony.Carriers.CONTENT_URI, null, selection, null, null);
 
@@ -2561,8 +2560,13 @@ public final class DcTracker extends DcTrackerBase {
             log("getPreferredApn: X not found mAllApnSettings.isEmpty");
             return null;
         }
-
-        String subId = Long.toString(mPhone.getSubId());
+        int intSubId = mPhone.getSubId();
+        log("getPreferredApn intSubId = " + intSubId);
+        if(intSubId == -2){
+          intSubId = 0;
+        }
+        String subId = Long.toString(intSubId);
+        //String subId = Long.toString(mPhone.getSubId());
         Uri uri = Uri.withAppendedPath(PREFERAPN_NO_UPDATE_URI_USING_SUBID, subId);
         Cursor cursor = mPhone.getContext().getContentResolver().query(
                 uri, new String[] { "_id", "name", "apn" },
@@ -2575,7 +2579,6 @@ public final class DcTracker extends DcTrackerBase {
         }
         log("getPreferredApn: mRequestedApnType=" + mRequestedApnType + " cursor=" + cursor
                 + " cursor.count=" + ((cursor != null) ? cursor.getCount() : 0));
-
         if (mCanSetPreferApn && cursor.getCount() > 0) {
             int pos;
             cursor.moveToFirst();
@@ -2764,9 +2767,7 @@ public final class DcTracker extends DcTrackerBase {
         if (mUiccController == null ) {
             return;
         }
-
         IccRecords newIccRecords = getUiccRecords(UiccController.APP_FAM_3GPP);
-
         IccRecords r = mIccRecords.get();
         if (r != newIccRecords) {
             if (r != null) {

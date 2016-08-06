@@ -25,6 +25,9 @@ import android.os.Handler;
 import android.os.AsyncResult;
 import android.telephony.RadioAccessFamily;
 import android.telephony.TelephonyManager;
+import android.os.SystemProperties;
+
+
 
 import com.android.internal.telephony.RadioCapability;
 
@@ -781,10 +784,17 @@ public abstract class BaseCommands implements CommandsInterface {
             }
 
             mRadioStateChangedRegistrants.notifyRegistrants();
+            if(!SystemProperties.getBoolean("ro.sw.embeded.telephony",false)){
+                if ((mState.isAvailable() && !oldState.isAvailable()) || (mState.isOn() && !oldState.isOn())) {
+                    mAvailRegistrants.notifyRegistrants();
+                    onRadioAvailable();
+                }
+            }else{
+                if (mState.isAvailable() && !oldState.isAvailable()) {
+                    mAvailRegistrants.notifyRegistrants();
+                    onRadioAvailable();
+                }
 
-            if (mState.isAvailable() && !oldState.isAvailable()) {
-                mAvailRegistrants.notifyRegistrants();
-                onRadioAvailable();
             }
 
             if (!mState.isAvailable() && oldState.isAvailable()) {
