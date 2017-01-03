@@ -76,6 +76,7 @@ public abstract class IccRecords extends Handler implements IccConstants {
     protected String mNewVoiceMailNum = null;
     protected String mNewVoiceMailTag = null;
     protected boolean mIsVoiceMailFixed = false;
+    private static final String ICCID_SIM_DEFAULT = "0";
     protected String mImsi;
     private IccIoResult auth_rsp;
 
@@ -190,6 +191,9 @@ public abstract class IccRecords extends Handler implements IccConstants {
     }
 
     public String getIccId() {
+        if(mIccId == null){
+           mIccId = ICCID_SIM_DEFAULT;
+        }
         return mIccId;
     }
 
